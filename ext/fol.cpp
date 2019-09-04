@@ -26,7 +26,7 @@
  */
 
 #include "fol.hpp"
-
+#include <iostream>
 
 /**
  * c-tor Species
@@ -38,6 +38,7 @@ Species() {
 	_nutrition = 1;
 	_population = 36;
 	_init = 0;
+	std::cout << "c-tor Species" << std::endl;
 }
 
 /**
@@ -55,7 +56,7 @@ set_strength(const int s) {
  */
 void Species::
 set_fertility(const int f) {
-	if (f > 0 && s < 4) {
+	if (f > 0 && f < 4) {
 		_fertility = f;
 		_update_stats();
 		_init = _init | 2;
@@ -112,19 +113,32 @@ _update_stats() {
 	_nutrition = _strength * _strength + (3 - _fertility);
 }
 
-
 /**
- * c-tor, reserve memory for world vector.
+ *
  */
 World::
-World(const int width, const int height, Species& s_a, Species& s_b, const int max_food) : _width(width), _height(height), _max_food(max_food), _s_a(s_a), _s_b(s_b) {
+World() {
+	_initialized = false;
+}
+
+/**
+ * initialize the world.
+ */
+void World::
+init(const int width, const int height, const int max_food, Species& s_a, Species& s_b) {
+	_width = width;
+	_height = height;
+	_max_food = max_food;
+	_s_a = s_a;
+	_s_b = s_b;
 	_cells.reserve(_width * _height);
 	_food.reserve(_width * _height);
 	_turn = 0;
 	for (int i = 0; i < _width * _height; ++i) {
-		_cells[i] = 0;
-		_food[i] = _max_food;
+		_cells.push_back(0);
+		_food.push_back(_max_food);
 	}
+	_initialized = true;
 }
 
 
@@ -132,14 +146,17 @@ World(const int width, const int height, Species& s_a, Species& s_b, const int m
  */
 void World::
 simulate_step() {
-	std::vector<int> tmp_cells = _cells;
+	std::vector<int> tmp_cells;
+	tmp_cells.reserve(_cells.size());
+	tmp_cells.insert(tmp_cells.end(), _cells.begin(), _cells.end());
+	std::cout << "Start simulate_step() " << tmp_cells.size() << std::endl;
 	for (int y=0; y < _height; ++y) {
 		for (int x=0; x < _width; ++x) {
 			tmp_cells[y * _width + x] = evaluate(x, y);
 		}
 	}
-
-	_cells = tmp_cells;
+	std::cout << "simulate_step(): all evaluated" << std::endl;
+	_cells.insert(_cells.begin(), tmp_cells.begin(), tmp_cells.end());
 	for (int y=0; y < _height; ++y) {
 		for (int x=0; x < _width; ++x) {
 			int eval_cell = x + y * _width;
@@ -169,35 +186,33 @@ evaluate(const int x, const int y) {
 	const int strength_b = _s_b.get_strength();
 	const int fertility_a = _s_a.get_fertility();
 	const int fertility_b = _s_b.get_fertility();
-	int count_a, count_b, count_e;
-
+	int count_a = 0, count_b = 0, count_e = 0;
+	std::cout << "eval: " << x << ", " << y << std::endl;
 	for (int xo=-1; xo < 2; ++xo) {
-		for (yo=-1; yo < 2; ++yo) {
-			xc = x + xo;
-			yc = y + yo;
+		for (int yo=-1; yo < 2; ++yo) {
+			int xc = x + xo;
+			int yc = y + yo;
 			if (xc < 0 || xc >= _width || yc < 0 || yc >= _height) {
 				continue;
 			}
 			switch (_cells[xc + yc * _width]) {
 				case 0: {
-					count_e++;
+					++count_e;
 					break;
 				}
 				case 1: {
-					count_a++;
+					++count_a;
 					break;
 				}
 				case 2: {
-					count_b++;
+					++count_b;
 					break;
 				}
-				case default: break;
-
 			}
 		}
 	}
 
-	int eval_cell = _cells[x + y * _width];
+	int eval_cell = _cells[pos];
 	switch (eval_cell) {
 		case 0:	{
 			int diff_a = count_a - fertility_a;
@@ -237,6 +252,23 @@ evaluate(const int x, const int y) {
 			break;
 		}
 	}	
+	std::cout << "eval " << x << ", " << y << std::endl;
 	return 0;
+}
+
+/**
+ *
+ */
+std::vector<int> World::
+cells() {
+	return _cells;
+}
+
+/**
+ *
+ */
+std::vector<int> World::
+food() {
+	return _food;
 }
 

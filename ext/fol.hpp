@@ -48,17 +48,18 @@ private:
 
 class World {
 public:
-	World(const int width, const int height, Species& s_a, Species& s_b, const int max_food);
+	World();
+	void init(const int width, const int height, const int max_food, Species& s_a, Species& s_b);
 	void simulate_step();
-	std::vector<int>& cells();
-	std::vector<int>& food();
+	std::vector<int> cells();
+	std::vector<int> food();
 private:
 	int evaluate(const int x, const int y);
 
-	const int _width, _height, _max_food;
-	int _turn;
+	int _width, _height, _max_food, _turn;
 	std::vector<int> _cells, _food;
 	Species _s_a, _s_b;
+	bool _initialized;
 };
 
 #endif
