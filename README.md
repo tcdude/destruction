@@ -1,6 +1,6 @@
 # !!! WARNING !!! - Chaos ensues
 
-# olc Code Jam 2009 - Theme: Destruction
+# olc Code Jam 2019 - Theme: Destruction
 
 I mainly use this code jam to get my gears going again, after a while of 
 not writing any code. I neither have a lot of spare time during this jam,
