@@ -50,13 +50,16 @@ class World {
 public:
 	World();
 	void init(const int width, const int height, const int max_food, Species& s_a, Species& s_b);
+	bool toggle(const int species, const int x, const int y);
 	void simulate_step();
 	std::vector<int> cells();
 	std::vector<int> food();
+	int count_a();
+	int count_b();
 private:
 	int evaluate(const int x, const int y);
 
-	int _width, _height, _max_food, _turn;
+	int _width, _height, _max_food, _turn, _count[3];
 	std::vector<int> _cells, _food;
 	Species _s_a, _s_b;
 	bool _initialized;

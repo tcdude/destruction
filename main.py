@@ -1,6 +1,3 @@
-#distutils: language = c++
-# cython: language_level=3
-
 """
 MIT License
 
@@ -25,31 +22,38 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from libcpp.vector cimport vector
+import time
+
+import sdl2.ext
 
 
-cdef extern from "ext/fol.cpp":
-    pass
+class HWRenderer(sdl2.ext.TextureSpriteRenderSystem):
+    def __init__(self, window):
+        super(HWRenderer, self).__init__(window)
+        self.renderer = self.sdlrenderer
+
+    def render(self, components, **kwargs):
+        self._renderer.clear()
+        super(HWRenderer, self).render(components, **kwargs)
 
 
-cdef extern from "ext/fol.hpp":
-    cdef cppclass Species:
-        Species() except +
-        void set_strength(const int)
-        void set_fertility(const int)
-        int get_strength()
-        int get_fertility()
-        int get_nutrition()
-        int get_population()
-        bint is_initialized()
+class Game(object):
+    def __init__(self, resolution=(1280, 720), grid=(100, 100), max_food=100):
+        self._resolution = resolution
+        self._grid = grid
+        self._max_food = max_food
+        
+        self._world = sdl2.ext.World()
+        sdl2.ext.init()
+        self._window = sdl2.ext.Window('Fight of Life', size=self._resolution)
+        self._window.show()
 
-    cdef cppclass World:
-        World() except +
-        void init(int, int, int, Species&, Species&)
-        bint toggle(int, int, int)
-        void simulate_step()
-        vector[int] cells()
-        vector[int] food()
-        int count_a()
-        int count_b()
+        self._renderer = HWRenderer(self._window)
+        self._factory = sdl2.ext.SpriteFactory(
+            sdl2.ext.TEXTURE,
+            renderer=self._renderer
+        )
+        self._world.add_system(self._renderer)
 
+        time.sleep(2)
+        sdl2.ext.quit()

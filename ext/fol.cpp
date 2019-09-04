@@ -134,11 +134,43 @@ init(const int width, const int height, const int max_food, Species& s_a, Specie
 	_cells.reserve(_width * _height);
 	_food.reserve(_width * _height);
 	_turn = 0;
+	_count[0] = _width * _height;
+	_count[1] = _count[2] = 0;
 	for (int i = 0; i < _width * _height; ++i) {
 		_cells.push_back(0);
 		_food.push_back(_max_food);
 	}
 	_initialized = true;
+}
+
+/**
+ * Toggle a cell for initial placement
+ */
+bool World::
+toggle(const int species, const int x, const int y) {
+	if (! _initialized) {
+		return false;
+	}
+	const int pos = x + y * _width;
+	if (_cells[pos] == 0 && species == 1 && _count[1] < _s_a.get_population()) {
+		_cells[pos] = 1;
+		++_count[1];
+		--_count[0];
+		return true;
+	}
+	else if (_cells[pos] == 0 && species == 2 && _count[2] < _s_b.get_population()) {
+		_cells[pos] = 2;
+		++_count[2];
+		--_count[0];
+		return true;
+	}
+	else if (_cells[pos] == species) {
+		_cells[pos] = 0;
+		--_count[species];
+		++_count[0];
+		return true;
+	}
+	return false;
 }
 
 
@@ -157,6 +189,7 @@ simulate_step() {
 	}
 	std::cout << "simulate_step(): all evaluated" << std::endl;
 	_cells.insert(_cells.begin(), tmp_cells.begin(), tmp_cells.end());
+	_count[0] = _count[1] = _count[2] = 0;
 	for (int y=0; y < _height; ++y) {
 		for (int x=0; x < _width; ++x) {
 			int eval_cell = x + y * _width;
@@ -171,6 +204,14 @@ simulate_step() {
 				}
 				_food[eval_cell] = (r < 0) ? 0 : r;
 			}
+			else {
+				int r = _food[eval_cell] - _s_b.get_nutrition();
+				if (r < 0) {
+					_cells[eval_cell] = 0;
+				}
+				_food[eval_cell] = (r < 0) ? 0 : r;
+			}
+			++_count[_cells[eval_cell]];
 		}
 	}
 	++_turn;
@@ -187,7 +228,6 @@ evaluate(const int x, const int y) {
 	const int fertility_a = _s_a.get_fertility();
 	const int fertility_b = _s_b.get_fertility();
 	int count_a = 0, count_b = 0, count_e = 0;
-	std::cout << "eval: " << x << ", " << y << std::endl;
 	for (int xo=-1; xo < 2; ++xo) {
 		for (int yo=-1; yo < 2; ++yo) {
 			int xc = x + xo;
@@ -252,7 +292,6 @@ evaluate(const int x, const int y) {
 			break;
 		}
 	}	
-	std::cout << "eval " << x << ", " << y << std::endl;
 	return 0;
 }
 
@@ -270,5 +309,21 @@ cells() {
 std::vector<int> World::
 food() {
 	return _food;
+}
+
+/**
+ *
+ */
+int World::
+count_a() {
+	return _count[1];
+}
+
+/**
+ *
+ */
+int World::
+count_b() {
+	return _count[2];
 }
 

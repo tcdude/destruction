@@ -2,3 +2,5 @@
 build/
 *.swp
 unused/
+__pycache__/
+venv/

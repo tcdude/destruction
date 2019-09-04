@@ -1,4 +1,5 @@
 #distutils: language = c++
+# cython: language_level=3
 
 """
 MIT License
@@ -27,9 +28,8 @@ SOFTWARE.
 from cython.operator cimport dereference as deref
 from libcpp.memory cimport unique_ptr
 
-print('test')
-
 cimport cppfol
+
 
 cdef class Species:
     cdef unique_ptr[cppfol.Species] thisptr
@@ -83,6 +83,9 @@ cdef class World:
         self.thisptr.reset(new cppfol.World())
         deref(self.thisptr).init(width, height, max_food, a, b)
 
+    def toggle(self, species, x, y):
+        return deref(self.thisptr).toggle(species, x, y)
+
     def simulate_step(self):
         deref(self.thisptr).simulate_step()
 
@@ -93,4 +96,12 @@ cdef class World:
     @property 
     def food(self):
         return deref(self.thisptr).food()
+
+    @property
+    def count_a(self):
+        return deref(self.thisptr).count_a()
+
+    @property
+    def count_b(self):
+        return deref(self.thisptr).count_b()
 
