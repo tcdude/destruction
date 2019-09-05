@@ -1,7 +1,7 @@
 # TO DO
 
-* [ ] Fix setup.py
-* [ ] Setup SDL skeleton
+* [x] Fix setup.py
+* [x] Setup SDL skeleton
 * [ ] Menu
 * [ ] Game Loop
 

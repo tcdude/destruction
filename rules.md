@@ -42,3 +42,18 @@ Class to keep track of the state of the world.
 ### Species
 
 Class to store the stats of a species.
+
+## Game Flow
+
+1. Main Menu
+    1. 2 Player
+    2. (optional) Train AI
+2. 2 Player
+    1. (Player 1) Set Strength + Fertility
+    2. (Player 1) Place Start Population
+    3. (Player 2) repeat same steps
+    4. Start Simulation
+3. Train AI
+    1. Show Current Best Simulation
+    2. Update Stats
+ 
