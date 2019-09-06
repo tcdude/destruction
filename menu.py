@@ -26,6 +26,24 @@ import sdl2
 
 from scene import Scene
 import graphics
+import aabb
+
+
+EXT = '.png'
+BUTTONS = {
+    'vs': {
+        'text': '2 Players VS',
+        'path': 'resources/2player',
+    },
+    'train': {
+        'text': 'Train AI',
+        'path': 'resources/train_ai',
+    },
+    'quit': {
+        'text': 'Quit',
+        'path': 'resources/quit',
+    },
+}
 
 
 class MainMenu(Scene):
@@ -33,20 +51,64 @@ class MainMenu(Scene):
         super().__init__(root)
         self._sprites = {}
         self._bb = {}
+        self._title_bb = None
+
+    def init_sprites(self):
+        im_title = graphics.build_text(
+            'Fight of Life', 
+            fg=graphics.RED, 
+            font=graphics.FONT_LARGE
+        )
+        im_title.save('resources/title.png')
+        rx, ry = self.root.resolution
+        s = self.factory.from_image('resources/title.png')
+        s.position = (
+            int(rx / 2 - im_title.size[0] / 2),
+            int(ry / 15)
+        )
+        self._title_bb = aabb.AABB(
+            *s.position,
+            s.x + im_title.size[0], 
+            s.y + im_title.size[1]
+        ) 
+        self._sprites['title'] = s
+        for i, k in enumerate(BUTTONS):
+            im, im_hov = graphics.build_button(BUTTONS[k]['text'])
+            im_name = BUTTONS[k]['path'] + EXT
+            im_hov_name = BUTTONS[k]['path'] + '_hov' + EXT
+            im.save(im_name)
+            im_hov.save(im_hov_name)
+            s1 = self.factory.from_image(im_name)
+            x = int(self.root.resolution[0] / 2 - im.size[0] / 2)
+            y_spacing = im.size[1] / 4
+            y_tot = im.size[1] * len(BUTTONS) 
+            y_tot += y_spacing * (len(BUTTONS) - 1)
+            y = int(
+                self.root.resolution[1] / 2 - y_tot 
+                / 2 + i * im.size[1] + i * y_spacing
+            )
+            self._bb[k] = aabb.AABB(x, y, x + im.size[0], y + im.size[1])
+            s1.position = x, y
+            s1.depth = 1
+            self._sprites[k] = s1
+            s2 = self.factory.from_image(im_hov_name)
+            s2.position = -x, -y
+            s2.depth = 0
+            self._sprites[k + '_hov'] = s2
 
     def process(self):
-        if self._bb['vs'][0] <= self.root.mouse_pos[0] <= self._bb['vs'][2] \
-                and self._bb['vs'][1] <= self.root.mouse_pos[1] <= self._bb['vs'][3]:
-            self._sprites['vs'].depth = 0
-            self._sprites['vs'].position = -self._bb['vs'][0], -self._bb['vs'][1] 
-            self._sprites['vs_hov'].depth = 1
-            self._sprites['vs_hov'].position = self._bb['vs'][:2]
-        else:
-            self._sprites['vs'].depth = 1
-            self._sprites['vs'].position = self._bb['vs'][:2] 
-            self._sprites['vs_hov'].depth = 0
-            self._sprites['vs_hov'].position = -self._bb['vs'][0], -self._bb['vs'][1] 
-
+        mx, my = self.root.mouse_pos
+        for k in self._bb:
+            if self._bb[k].inside(mx, my):
+                self._sprites[k].depth = 0
+                self._sprites[k].position = -self._bb[k].x1, -self._bb[k].y1 
+                self._sprites[k + '_hov'].depth = 1
+                self._sprites[k + '_hov'].position = self._bb[k].x1, self._bb[k].y1
+            else:
+                self._sprites[k].depth = 1
+                self._sprites[k].position = self._bb[k].x1, self._bb[k].y1
+                self._sprites[k + '_hov'].depth = 0
+                self._sprites[k + '_hov'].position = -self._bb[k].x1, -self._bb[k].y1
         self.root.render(list(self._sprites.values()))
 
     def enter(self):
@@ -57,27 +119,15 @@ class MainMenu(Scene):
             self.mouse_click,
             button=sdl2.SDL_BUTTON_LEFT
         )
-
-        i, i_hov = graphics.build_button('2 Players VS')
-        i.save('resources/2player.png')
-        i_hov.save('resources/2player_hov.png')
-        s1 = self.factory.from_image('resources/2player.png')
-        pos = (
-            int(self.root.resolution[0] / 2 - i.size[0] / 2), 
-            int(self.root.resolution[1] / 2 - i.size[1] * 1.5)
-        )
-        self._bb['vs'] = pos + (pos[0] + i.size[0], pos[1] + i.size[1])
-        s1.position = pos
-        s1.depth = 1
-        self._sprites['vs'] = s1
-        s2 = self.factory.from_image('resources/2player_hov.png')
-        s2.position = -pos[0], -pos[1]
-        s2.depth = 0
-        self._sprites['vs_hov'] = s2
+        self.init_sprites()
 
     def exit(self):
         pass
 
     def mouse_click(self):
-        print('click')
+        mx, my = self.root.mouse_pos
+        for k in self._bb:
+            if self._bb[k].inside(mx, my):
+                print(f'clicked "{k}"')
+                break
 

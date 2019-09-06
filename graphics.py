@@ -60,6 +60,15 @@ BLUE = 0, 0, 255, 255
 TRANSPARENT = 0, 0, 0, 0
 
 
+def build_text(text, fg=WHITE, bg=BLACK, font=FONT_MEDIUM):
+    """Return a PIL.Image() of the text."""
+    sx, sy = font.getsize_multiline(text)
+    img = Image.new('RGBA', (sx, int(sy * 1.5)), bg)
+    draw = ImageDraw.Draw(img)
+    draw.multiline_text((0, 0), text, fill=fg, font=font)
+    return img
+
+
 def build_button(
         text, 
         fg=WHITE, 

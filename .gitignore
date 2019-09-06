@@ -1,6 +1,10 @@
 **.so
 build/
-*.swp
+**.swp
+**.swo
 unused/
 __pycache__/
 venv/
+
+# custom
+fol.cpp
