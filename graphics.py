@@ -54,6 +54,8 @@ FONT_MEDIUM = ImageFont.truetype('resources/437tt.ttf', size=int(36 * SCALE))
 FONT_LARGE = ImageFont.truetype('resources/437tt.ttf', size=int(64 * SCALE))
 WHITE = 255, 255, 255, 255
 BLACK = 0, 0, 0, 255
+GREY = 60, 60, 60, 255
+LIGHTGREY = 160, 160, 160, 255
 RED = 255, 0, 0, 255
 GREEN = 0, 255, 0, 255
 BLUE = 0, 0, 255, 255
@@ -118,7 +120,11 @@ def build_grid(
     c_width = int(width / h_cells)
     c_height = int(height / v_cells)
     c_sidelen = min(c_width, c_height)
-    img = Image.new('RGBA', (h_cells * c_sidelen, v_cells * c_sidelen), bg)
+    img = Image.new(
+        'RGBA', 
+        (h_cells * c_sidelen + line_width, v_cells * c_sidelen + line_width), 
+        bg
+    )
     draw = ImageDraw.Draw(img)
     for x in range(h_cells + 1):
         lx = min(x * c_sidelen, img.size[0] - line_width)
@@ -136,4 +142,8 @@ def build_grid(
         )
     return img
 
+
+def build_rect(width, height=None, color=GREY):
+    size = width, height or width
+    return Image.new('RGBA', size, color)
 

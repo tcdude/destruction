@@ -27,7 +27,7 @@ import graphics
 
 BUTTONS = {
     'vs': graphics.build_button(chr(0xf18e) + ' 2 Player VS', line_width=0),
-    'ai': graphics.build_button(chr(0xf18e) + ' Train AI', line_width=0),
+    'ai': graphics.build_button(chr(0xe28c) + ' Train AI', line_width=0),
     'quit': graphics.build_button(chr(0xf659) + ' Quit', line_width=0),
     'inc': graphics.build_button(chr(0xf055), line_width=0),
     'dec': graphics.build_button(chr(0xf056), line_width=0),
@@ -67,8 +67,15 @@ TEXTS = {
     'species0': graphics.build_text(
         'Adjust the stats of your species to your liking and click "Next" '
         'when done.\nWhile Player One is setting up their species, Player '
-        'Two: "No peaking!"...\n\n*...this really needs networking support '
+        'Two: "No peeking!"...\n\n*...this really needs networking support '
         'or something...*\n\n\n    Left click to continue',
+        font=graphics.FONT_SMALL
+    ),
+    'species1': graphics.build_text(
+        'Now while Player one tries to not peek, Player Two, please adjust '
+        'the stats of your Species.\n\n...this is really awkward, two '
+        'people in front of one PC???\nare we accidentally back in the 90s???'
+        '\n\n\n    Left click to continue',
         font=graphics.FONT_SMALL
     ),
     'str': graphics.build_text(

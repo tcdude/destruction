@@ -175,6 +175,38 @@ class SpeciesSelection(Scene):
         for node in self._data['nodes'][k].values():
             node.hide()
 
+        # Screen 0, Species B
+        tot_y = 2 * TITLES['p1_species'].size[1] + TEXTS['species0'].size[1]
+        k = 0, 1
+        self._data['nodes'][k] = {
+            0: self.root.new_node(
+                TITLES['p2_species'],
+                int(rx / 2 - TITLES['p2_species'].size[0] / 2),
+                int(ry / 2 - tot_y / 2)
+            ),
+            1: self.root.new_node(
+                TEXTS['species1'],
+                int(rx / 2 - TEXTS['species1'].size[0] / 2),
+                int(ry / 2 - tot_y / 2 + 2 * TITLES['p2_species'].size[1])
+            )
+        }
+        
+        for node in self._data['nodes'][k].values():
+            node.hide()
+
+        # Screen 1, Species B
+        k = 1, 1
+        self._data['nodes'][k] = {}
+        self._data['nodes'][k].update(self._data['nodes'][(1, 0)])
+        self._data['nodes'][k][0] = self.root.new_node(
+            TITLES['p2_species'],
+            self._data['nodes'][(1, 0)][0].x,
+            self._data['nodes'][(1, 0)][0].y
+        )
+        
+        for node in self._data['nodes'][k].values():
+            node.hide()
+
     def process(self):
         pass
 
@@ -205,7 +237,6 @@ class SpeciesSelection(Scene):
             self._data['screen'] = 0
             self._data['species'].strength = 1
             self._data['species'].fertility = 3
-            self._update_stats()
         
         for node in self._data['nodes'][self.key].values():
             node.show()
@@ -243,6 +274,8 @@ class SpeciesSelection(Scene):
                 if self._data['species'].fertility < 3:
                     self._data['species'].fertility += 1
                     self._update_stats()
+            elif nodes['next'].mouse_inside:
+                self.root.request('Placement')
                    
     def _update_stats(self):
         nodes = self._data['nodes'][self.key]

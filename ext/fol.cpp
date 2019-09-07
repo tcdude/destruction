@@ -38,7 +38,6 @@ Species() {
 	_nutrition = 1;
 	_population = 36;
 	_init = 0;
-	std::cout << "c-tor Species" << std::endl;
 }
 
 /**
