@@ -75,17 +75,19 @@ def build_button(
         bg=BLACK, 
         font=FONT_MEDIUM, 
         hover_fg=BLACK, 
-        hover_bg=WHITE
+        hover_bg=WHITE,
+        line_width=2
     ):
     """Return a tuple of 2 PIL.Image() objects (normal/hover)."""
     text_size = font.getsize_multiline(text)
     img = Image.new('RGBA', (text_size[0] + 20, text_size[1] + 30), bg)
     draw = ImageDraw.Draw(img)
-    draw.rectangle(
-        [1, 1, img.size[0] - 2, img.size[1] - 2], 
-        outline=fg, 
-        width=2
-    )
+    if line_width:
+        draw.rectangle(
+            [1, 1, img.size[0] - 2, img.size[1] - 2], 
+            outline=fg, 
+            width=line_width
+        )
     draw.multiline_text((10, 10), text, fill=fg, font=font)
     img_hover = Image.new(
         'RGBA', 
@@ -93,11 +95,12 @@ def build_button(
         hover_bg
     )
     draw = ImageDraw.Draw(img_hover)
-    draw.rectangle(
-        [1, 1, img_hover.size[0] - 2, img_hover.size[1] - 2], 
-        outline=hover_fg, 
-        width=2
-    )
+    if line_width:
+        draw.rectangle(
+            [1, 1, img_hover.size[0] - 2, img_hover.size[1] - 2], 
+            outline=hover_fg, 
+            width=line_width
+        )
     draw.multiline_text((10, 10), text, fill=hover_fg, font=font)
     return img, img_hover
 

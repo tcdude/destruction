@@ -27,107 +27,66 @@ import sdl2
 from scene import Scene
 import graphics
 import aabb
-
-
-EXT = '.png'
-BUTTONS = {
-    'vs': {
-        'text': '2 Players VS',
-        'path': 'resources/2player',
-    },
-    'train': {
-        'text': 'Train AI',
-        'path': 'resources/train_ai',
-    },
-    'quit': {
-        'text': 'Quit',
-        'path': 'resources/quit',
-    },
-}
+from assets import BUTTONS
+from assets import TITLES
 
 
 class MainMenu(Scene):
     def __init__(self, root):
         super().__init__(root)
-        self._sprites = {}
-        self._bb = {}
-        self._title_bb = None
+        self._nodes = {}
+        self._init = False
 
-    def init_sprites(self):
-        im_title = graphics.build_text(
-            'Fight of Life', 
-            fg=graphics.RED, 
-            font=graphics.FONT_LARGE
-        )
-        im_title.save('resources/title.png')
+    def _init_sprites(self):
+        im_title = TITLES['fol']
+        self._nodes['title'] = self.root.new_node(im_title)
         rx, ry = self.root.resolution
-        s = self.factory.from_image('resources/title.png')
-        s.position = (
+        self._nodes['title'].position = (
             int(rx / 2 - im_title.size[0] / 2),
             int(ry / 15)
         )
-        self._title_bb = aabb.AABB(
-            *s.position,
-            s.x + im_title.size[0], 
-            s.y + im_title.size[1]
-        ) 
-        self._sprites['title'] = s
-        for i, k in enumerate(BUTTONS):
-            im, im_hov = graphics.build_button(BUTTONS[k]['text'])
-            im_name = BUTTONS[k]['path'] + EXT
-            im_hov_name = BUTTONS[k]['path'] + '_hov' + EXT
-            im.save(im_name)
-            im_hov.save(im_hov_name)
-            s1 = self.factory.from_image(im_name)
-            x = int(self.root.resolution[0] / 2 - im.size[0] / 2)
+        buttons = (BUTTONS['vs'], BUTTONS['ai'], BUTTONS['quit'])
+        x = int(rx / 2 - buttons[0][0].size[0] / 2)
+        for i, (im, im_hov) in enumerate(buttons):
+            self._nodes[i] = self.root.new_button(im, im_hov)
             y_spacing = im.size[1] / 4
             y_tot = im.size[1] * len(BUTTONS) 
             y_tot += y_spacing * (len(BUTTONS) - 1)
             y = int(
-                self.root.resolution[1] / 2 - y_tot 
+                ry / 2 - y_tot 
                 / 2 + i * im.size[1] + i * y_spacing
             )
-            self._bb[k] = aabb.AABB(x, y, x + im.size[0], y + im.size[1])
-            s1.position = x, y
-            s1.depth = 1
-            self._sprites[k] = s1
-            s2 = self.factory.from_image(im_hov_name)
-            s2.position = -x, -y
-            s2.depth = 0
-            self._sprites[k + '_hov'] = s2
+            self._nodes[i].position = x, y
 
     def process(self):
-        mx, my = self.root.mouse_pos
-        for k in self._bb:
-            if self._bb[k].inside(mx, my):
-                self._sprites[k].depth = 0
-                self._sprites[k].position = -self._bb[k].x1, -self._bb[k].y1 
-                self._sprites[k + '_hov'].depth = 1
-                self._sprites[k + '_hov'].position = self._bb[k].x1, self._bb[k].y1
-            else:
-                self._sprites[k].depth = 1
-                self._sprites[k].position = self._bb[k].x1, self._bb[k].y1
-                self._sprites[k + '_hov'].depth = 0
-                self._sprites[k + '_hov'].position = -self._bb[k].x1, -self._bb[k].y1
-        self.root.render(list(self._sprites.values()))
+        pass
 
     def enter(self):
-        self._sprites = {}
-        self.root.event_handler.reset()
+        if not self._init:
+            self._init_sprites()
+            self._init = True
         self.root.event_handler.register(
             sdl2.SDL_MOUSEBUTTONUP,
             self.mouse_click,
             button=sdl2.SDL_BUTTON_LEFT
         )
-        self.init_sprites()
+        for node in self._nodes:
+            self._nodes[node].show()
 
     def exit(self):
-        pass
+        self.root.event_handler.reset()
+        for node in self._nodes:
+            self._nodes[node].hide()
 
     def mouse_click(self):
         mx, my = self.root.mouse_pos
-        for k in self._bb:
-            if self._bb[k].inside(mx, my):
-                print(f'clicked "{k}"')
+        for i in range(3):
+            if self._nodes[i].aabb.inside(mx, my):
+                if i == 0:
+                    self.root.request('SpeciesSelection')
+                elif i == 1:
+                    print('you wish...')
+                elif i == 2:
+                    self.root.quit()
                 break
 

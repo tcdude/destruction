@@ -26,8 +26,11 @@ import ctypes
 
 import sdl2
 import sdl2.ext
+from sdl2 import endian, surface, pixels
 
+import fol
 import graphics
+import node
 from event_handler import EventHandler
 from render import HWRenderer
 from menu import MainMenu
@@ -52,8 +55,10 @@ class Game(object):
             'Simulation': Simulation(self),
         }
         self._active_scene = None
-        
-        self._world = sdl2.ext.World()
+        self._scene_data = {}
+
+        # self._world = sdl2.ext.World()
+        self._nodes = []
         self._window = None
         self._factory = None
         self._renderer = None
@@ -64,6 +69,8 @@ class Game(object):
         self._mouse_pos = 0, 0
 
         self._event_handler = EventHandler(self.quit)
+        self._species_a = fol.Species()
+        self._species_b = fol.Species()
 
     @property
     def mouse_pos(self):
@@ -85,6 +92,22 @@ class Game(object):
     def render(self):
         return self._renderer.render
 
+    @property
+    def species_a(self):
+        return self._species_a
+
+    @property
+    def species_b(self):
+        return self._species_b
+
+    @property
+    def scene_data(self):
+        if self._active_scene is None:
+            raise ValueError('No active scene set.')
+        if self._active_scene not in self._scene_data:
+            self._scene_data[self._active_scene] = {}
+        return self._scene_data[self._active_scene]
+
     def request(self, scene):
         if scene not in self._scenes:
             raise ValueError(f'Unknown scene: "{scene}"')
@@ -98,6 +121,103 @@ class Game(object):
 
     def quit(self):
         self._running = False
+    
+    def new_node(self, image, x=0, y=0):
+        s = self.image2sprite(image)
+        self._nodes.append(node.Node(s, x, y))
+        return self._nodes[-1]
+    
+    def new_button(self, image, image_hov, x=0, y=0):
+        s = self.image2sprite(image)
+        s_hov = self.image2sprite(image_hov)
+        self._nodes.append(node.Button(s, s_hov, self, x, y))
+        return self._nodes[-1]
+
+    def new_multi_node(self, images, x=0, y=0):
+        sprites = [self.image2sprite(img) for img in images]
+        self._nodes.append(node.MultiNode(sprites, x, y))
+        return self._nodes[-1]
+
+    def remove_node(self, node):
+        if node in self._nodes:
+            self._nodes.pop(self._nodes.index(node))
+        else:
+            raise ValueError('Unknown Node')
+
+    def image2sprite(self, image):
+        mode = image.mode
+        width, height = image.size
+        rmask = gmask = bmask = amask = 0
+        if mode in ("1", "L", "P"):
+            # 1 = B/W, 1 bit per byte
+            # "L" = greyscale, 8-bit
+            # "P" = palette-based, 8-bit
+            pitch = width
+            depth = 8
+        elif mode == "RGB":
+            # 3x8-bit, 24bpp
+            if endian.SDL_BYTEORDER == endian.SDL_LIL_ENDIAN:
+                rmask = 0x0000FF
+                gmask = 0x00FF00
+                bmask = 0xFF0000
+            else:
+                rmask = 0xFF0000
+                gmask = 0x00FF00
+                bmask = 0x0000FF
+            depth = 24
+            pitch = width * 3
+        elif mode in ("RGBA", "RGBX"):
+            # RGBX: 4x8-bit, no alpha
+            # RGBA: 4x8-bit, alpha
+            if endian.SDL_BYTEORDER == endian.SDL_LIL_ENDIAN:
+                rmask = 0x000000FF
+                gmask = 0x0000FF00
+                bmask = 0x00FF0000
+                if mode == "RGBA":
+                    amask = 0xFF000000
+            else:
+                rmask = 0xFF000000
+                gmask = 0x00FF0000
+                bmask = 0x0000FF00
+                if mode == "RGBA":
+                    amask = 0x000000FF
+            depth = 32
+            pitch = width * 4
+        else:
+            # We do not support CMYK or YCbCr for now
+            raise TypeError("unsupported image format")
+
+        pxbuf = image.tobytes()
+        imgsurface = surface.SDL_CreateRGBSurfaceFrom(pxbuf, width, height,
+                                                      depth, pitch, rmask,
+                                                      gmask, bmask, amask)
+        if not imgsurface:
+            raise SDLError()
+        imgsurface = imgsurface.contents
+        # the pixel buffer must not be freed for the lifetime of the surface
+        imgsurface._pxbuf = pxbuf
+
+        if mode == "P":
+            # Create a SDL_Palette for the SDL_Surface
+            def _chunk(seq, size):
+                for x in range(0, len(seq), size):
+                    yield seq[x:x + size]
+
+            rgbcolors = image.getpalette()
+            sdlpalette = pixels.SDL_AllocPalette(len(rgbcolors) // 3)
+            if not sdlpalette:
+                raise SDLError()
+            SDL_Color = pixels.SDL_Color
+            for idx, (r, g, b) in enumerate(_chunk(rgbcolors, 3)):
+                sdlpalette.contents.colors[idx] = SDL_Color(r, g, b)
+            ret = surface.SDL_SetSurfacePalette(imgsurface, sdlpalette)
+            # This will decrease the refcount on the palette, so it gets
+            # freed properly on releasing the SDL_Surface.
+            pixels.SDL_FreePalette(sdlpalette)
+            if ret != 0:
+                raise SDLError()
+
+        return self.factory.from_surface(imgsurface, free=True)
 
     def run(self):
         self._window = sdl2.ext.Window('Fight of Life', size=self._resolution)
@@ -108,7 +228,7 @@ class Game(object):
             sdl2.ext.TEXTURE,
             renderer=self._renderer
         )
-        self._world.add_system(self._renderer)
+        # self._world.add_system(self._renderer)
         
         self._running = True
         self.request('MainMenu')
@@ -119,10 +239,17 @@ class Game(object):
             # self._renderer.render(self._active_sprites)
             if self._active_scene is not None:
                 self._active_scene.process()
+                self._render_visible()
             sdl2.timer.SDL_Delay(10)
 
-
         sdl2.ext.quit()
+
+    def _render_visible(self):
+        sprites = []
+        for node in self._nodes:
+            if node.visible:
+                sprites.append(node.sprite)
+        self.render(sprites)
 
     def _update_mouse(self):
         x, y = ctypes.c_int(0), ctypes.c_int(0)
