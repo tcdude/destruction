@@ -54,7 +54,7 @@ FONT_MEDIUM = ImageFont.truetype('resources/437tt.ttf', size=int(36 * SCALE))
 FONT_LARGE = ImageFont.truetype('resources/437tt.ttf', size=int(64 * SCALE))
 WHITE = 255, 255, 255, 255
 BLACK = 0, 0, 0, 255
-GREY = 60, 60, 60, 255
+GREY = 70, 70, 70, 255
 LIGHTGREY = 160, 160, 160, 255
 RED = 255, 0, 0, 255
 GREEN = 0, 255, 0, 255

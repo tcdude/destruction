@@ -149,6 +149,10 @@ class MultiNode(Node):
             self.y + self._sprites[self._active].size[1]
         )
 
+    @property
+    def active(self):
+        return self._active
+
     def _on_pos_change(self):
         for s in self._sprites:
             s.position = self.position
