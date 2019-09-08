@@ -32,6 +32,8 @@ class Node(object):
         self._x = x
         self._y = y
         self._visible = True
+        self._depth = sprite.depth
+        self._size = sprite.size
 
     @property
     def x(self):
@@ -65,6 +67,19 @@ class Node(object):
             self._sprite.position = v
         self._x, self._y = v
         self._on_pos_change()
+
+    @property
+    def depth(self):
+        return self._depth
+
+    @depth.setter
+    def depth(self, v):
+        self._sprite.depth = v
+        self._depth = v
+
+    @property
+    def size(self):
+        return self._sprite.size
 
     @property
     def sprite(self):
@@ -114,6 +129,16 @@ class Button(Node):
             return self._sprite_normal
 
     @property
+    def depth(self):
+        return self._depth
+
+    @depth.setter
+    def depth(self, v):
+        self._sprite_normal.depth = v
+        self._sprite_hover.depth = v
+        self._depth = v
+
+    @property
     def mouse_inside(self):
         return self._mouse_inside
 
@@ -134,6 +159,16 @@ class MultiNode(Node):
     @property
     def sprite(self):
         return self._sprites[self._active]
+
+    @property
+    def depth(self):
+        return self._depth
+
+    @depth.setter
+    def depth(self, v):
+        for sprite in self._sprites:
+            sprite.depth = v
+        self._depth = v
 
     def set_active(self, idx):
         if -1 < idx < len(self._sprites):

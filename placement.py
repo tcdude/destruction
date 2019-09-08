@@ -23,6 +23,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import random
+
 import sdl2
 
 import aabb
@@ -46,11 +48,6 @@ class Placement(Scene):
             [TITLES['p1_placement'], TITLES['p2_placement']],
             int(rx / 2 - TITLES['p1_placement'].size[0] / 2),
             int(ry / 20)
-        )
-        self._nodes['next'] = self.root.new_button(
-            *BUTTONS['next'],
-            int(rx / 2 - BUTTONS['next'][0].size[0] / 2),
-            int(ry - 1.5 * BUTTONS['next'][0].size[1])
         )
         im_grid = self.root.grid.sprite
         start_x = int(rx / 2 - im_grid.size[0] / 2)
@@ -89,11 +86,23 @@ class Placement(Scene):
             int(self._nodes['popt1'].x + TEXTS[9].size[0]),
             pop_y
         )
+        rand_x = self._nodes['popt2'].x + 2 * TEXTS[9].size[0]
+        next_x = rand_x + BUTTONS['rand'][0].size[0] + TEXTS[9].size[0]
+        self._nodes['rand'] = self.root.new_button(
+            *BUTTONS['rand'],
+            rand_x,
+            pop_y
+        )
+        self._nodes['next'] = self.root.new_button(
+            *BUTTONS['next'],
+            next_x,
+            pop_y
+        )
         self._data['g_bb'] = aabb.AABB(
-            start_x, 
-            start_y,
-            start_x + im_grid.size[0],
-            start_y + im_grid.size[1]
+            start_x + 2, 
+            start_y + 2,
+            start_x + im_grid.size[0] - 2,
+            start_y + im_grid.size[1] - 2
         )
 
     def process(self):
@@ -101,12 +110,15 @@ class Placement(Scene):
             mx, my = self.root.mouse_pos
             rx, ry = self.root.resolution
             bb = self._data['g_bb']
-            slen = self._data['slen']
+            slen = self._data['slen'] + 2
             k = None
             if bb.inside(mx, my):
                 if (self._data['p'] == 0 and mx < rx / 2) \
                     or (self._data['p'] and mx > rx / 2):
-                    k = int((mx - bb.x1) / slen), int((my - bb.y1) / slen)
+                    k = (
+                        int((mx - bb.x1) / slen), 
+                        int((my - bb.y1) / slen)
+                    )
             else:
                 if self._data['hover'] is not None:
                     self._nodes[self._data['hover']].set_active(
@@ -116,10 +128,10 @@ class Placement(Scene):
                     self._data['pstate'] = None
                     return
 
-            if k is None or k[0] > 45 or k[1] > 19:
+            if k is None or k[0] > 47 or k[1] > 20:
                 return
-            if (self._data['p'] == 0 and k[0] > 22) \
-                    or (self._data['p'] and k[0] < 23):
+            if (self._data['p'] == 0 and k[0] > 23) \
+                    or (self._data['p'] and k[0] < 24):
                 return
             if self._data['pstate'] is not None and self._data['hover'] != k:
                 self._nodes[self._data['hover']].set_active(
@@ -184,6 +196,16 @@ class Placement(Scene):
         self._nodes['popt2'].set_active(int(t2))
 
     def mouse_click(self):
+        if self._nodes['rand'].mouse_inside:
+            self.clear()
+            if self._data['p'] == 0:
+                group = [(x, y) for x in range(24) for y in range(21)]
+            else:
+                group = [(x, y) for x in range(24, 48) for y in range(21)]
+            for k in random.sample(group, self._data['species'].population):
+                self._nodes[k].set_active(self._data['p'] + 2)
+            self._data['active'] = self._data['species'].population
+            return
         if self._nodes['next'].mouse_inside \
             and self._data['active'] == self._data['species'].population:
                 if self._data['hover'] is not None:

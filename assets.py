@@ -32,6 +32,10 @@ BUTTONS = {
     'inc': graphics.build_button(chr(0xf055), line_width=0),
     'dec': graphics.build_button(chr(0xf056), line_width=0),
     'next': graphics.build_button('Next', line_width=1),
+    'start': graphics.build_button('Start', line_width=1),
+    'replay': graphics.build_button('Replay', line_width=1),
+    'menu': graphics.build_button('Main Menu', line_width=1),
+    'rand': graphics.build_button('Random', line_width=1),
 }
 
 TITLES = {
@@ -58,7 +62,7 @@ TITLES = {
         fg=graphics.BLUE
     ),
     'sim': graphics.build_text(
-        'Ordered chaos in progress...',
+        'Structured chaos in progress... ' + chr(0xfb8f),
         fg=graphics.RED
     ),
 }
@@ -96,13 +100,21 @@ TEXTS = {
         'of',
         graphics.BLUE
     ),
+    'popr': graphics.build_text(
+        'Population:',
+        graphics.RED
+    ),
+    'ofr': graphics.build_text(
+        'of',
+        graphics.RED
+    ),
     'str_info': graphics.build_text(
         'Multiplier used during fighting, high strength makes hungry...',
         font=graphics.FONT_SMALL
     ),
     'fer_info': graphics.build_text(
         'Number of cells needed to reproduce, division of "labour" leaves '
-        'more time to chill...',
+        'more time to chill...\n...and allows for higher population densities',
         font=graphics.FONT_SMALL
     ),
     'gen_info': graphics.build_text(

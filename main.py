@@ -65,6 +65,7 @@ class Game(object):
 
         self._grid = None
         self._cells = {}
+        self._food = {}
         self._grid_slen = 0
 
         self._clean_exit = False
@@ -126,6 +127,10 @@ class Game(object):
         return self._cells
 
     @property
+    def food(self):
+        return self._food
+
+    @property
     def grid_slen(self):
         return self._grid_slen
 
@@ -157,7 +162,35 @@ class Game(object):
                     start_y + (y + 1) * 2 + y * slen
                 )
                 self._cells[(x, y)].hide()
+                self._cells[(x, y)].depth = 0
         self._grid_slen = slen
+        sred = 150
+        sgreen = 70
+        dred = 130
+        dgreen = -150
+        im_rects = []
+        for i in range(10):
+            im_rects.append(
+                graphics.build_rect(
+                    slen, 
+                    color=(
+                        sred - dred // 9 * i,
+                        sgreen - dgreen // 9 * i,
+                        0,
+                        255
+                    )
+                )
+            )
+
+        for x in range(48):
+            for y in range(21):
+                self._food[(0, x, y)] = self.new_multi_node(
+                    im_rects,
+                    start_x + (x + 1) * 2 + x * slen,
+                    start_y + (y + 1) * 2 + y * slen
+                )
+                self._food[(0, x, y)].hide()
+                self._food[(0, x, y)].depth = 1
 
     def request(self, scene):
         if scene not in self._scenes:

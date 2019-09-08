@@ -109,7 +109,7 @@ void Species::
 _update_stats() {
 	_population = 4 - _strength + _fertility;
 	_population *= _population;
-	_nutrition = _strength * _strength + (3 - _fertility);
+	_nutrition = _strength * _strength * (5 - _fertility) * (4 - _fertility);
 }
 
 /**
@@ -180,24 +180,24 @@ simulate_step() {
 	std::vector<int> tmp_cells;
 	tmp_cells.reserve(_cells.size());
 	tmp_cells.insert(tmp_cells.end(), _cells.begin(), _cells.end());
-	std::cout << "Start simulate_step() " << tmp_cells.size() << std::endl;
 	for (int y=0; y < _height; ++y) {
 		for (int x=0; x < _width; ++x) {
 			tmp_cells[y * _width + x] = evaluate(x, y);
 		}
 	}
-	std::cout << "simulate_step(): all evaluated" << std::endl;
+	_cells.clear();
 	_cells.insert(_cells.begin(), tmp_cells.begin(), tmp_cells.end());
 	_count[0] = _count[1] = _count[2] = 0;
 	for (int y=0; y < _height; ++y) {
 		for (int x=0; x < _width; ++x) {
 			int eval_cell = x + y * _width;
-			if (_cells[eval_cell] == 0) {
+			if (_cells[eval_cell] == 0 && _food[eval_cell]) {
 				int f = _food[eval_cell];
 				_food[eval_cell] = (f < _max_food) ? f + 1 : f;
 			}
 			else if (_cells[eval_cell] == 1) {
 				int r = _food[eval_cell] - _s_a.get_nutrition();
+				// ++r;
 				if (r < 0) {
 					_cells[eval_cell] = 0;
 				}
@@ -205,6 +205,7 @@ simulate_step() {
 			}
 			else {
 				int r = _food[eval_cell] - _s_b.get_nutrition();
+				// ++r;
 				if (r < 0) {
 					_cells[eval_cell] = 0;
 				}
@@ -268,6 +269,9 @@ evaluate(const int x, const int y) {
 			break;
 		}
 		case 1: {
+			if (count_a + count_b > 1 + fertility_a) {
+				return 0;
+			}
 			if (count_a * strength_a >= count_b * strength_b) {
 				return 1;
 			}
@@ -282,11 +286,19 @@ evaluate(const int x, const int y) {
 			break;
 		}
 		case 2: {
+			if (count_a + count_b > 1 + fertility_b) {
+				return 0;
+			}
 			if (count_a * strength_a <= count_b * strength_b) {
 				return 2;
 			}
 			else {
-				return 0;
+				if (count_a - fertility_a > -1) {
+					return 1;
+				}
+				else {
+					return 0;
+				}
 			}
 			break;
 		}
