@@ -28,7 +28,7 @@ import sdl2
 import sdl2.ext
 from sdl2 import endian, surface, pixels
 
-import fol
+from . import fol
 from . import graphics
 from . import node
 from .event_handler import EventHandler

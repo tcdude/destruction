@@ -31,7 +31,7 @@ from .scene import Scene
 from .assets import BUTTONS
 from .assets import TEXTS
 from .assets import TITLES
-import fol
+from . import fol
 
 MAX_FOOD = 500
 STEP_TIME = 1 / 15
