@@ -23,6 +23,7 @@ SOFTWARE.
 """
 
 import ctypes
+import os
 
 from PIL import Image
 from PIL import ImageDraw
@@ -49,9 +50,10 @@ elif v.value > 0:
 else:
     SCALE = 1.0
 
-FONT_SMALL = ImageFont.truetype('resources/437tt.ttf', size=int(20 * SCALE))
-FONT_MEDIUM = ImageFont.truetype('resources/437tt.ttf', size=int(36 * SCALE))
-FONT_LARGE = ImageFont.truetype('resources/437tt.ttf', size=int(64 * SCALE))
+_font_path = os.path.join(os.path.split(__file__)[0], 'resources/437tt.ttf')
+FONT_SMALL = ImageFont.truetype(_font_path, size=int(20 * SCALE))
+FONT_MEDIUM = ImageFont.truetype(_font_path, size=int(36 * SCALE))
+FONT_LARGE = ImageFont.truetype(_font_path, size=int(64 * SCALE))
 WHITE = 255, 255, 255, 255
 BLACK = 0, 0, 0, 255
 GREY = 70, 70, 70, 255
