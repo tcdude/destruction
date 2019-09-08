@@ -47,14 +47,11 @@ class MainMenu(Scene):
         )
         buttons = (BUTTONS['vs'], BUTTONS['ai'], BUTTONS['quit'])
         x = int(rx / 2 - buttons[0][0].size[0] / 2)
+        y_start = self._nodes['title'].y + self._nodes['title'].size[1]
+        y_start += BUTTONS['vs'][0].size[1]
         for i, (im, im_hov) in enumerate(buttons):
             self._nodes[i] = self.root.new_button(im, im_hov)
-            y_spacing = im.size[1] / 4
-            y_tot = im.size[1] * (len(BUTTONS) - 2) 
-            y_tot += y_spacing * (len(BUTTONS) - 1)
-            y = int(
-                ry / 2 - y_tot / 2 + i * (im.size[1] + y_spacing)
-            ) + im.size[1]
+            y = int(y_start + i * BUTTONS['vs'][0].size[1] * 1.3)
             self._nodes[i].position = x, y
 
     def process(self):
