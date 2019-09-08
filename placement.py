@@ -28,6 +28,7 @@ import sdl2
 import aabb
 from scene import Scene
 import graphics
+from assets import TEXTS
 from assets import TITLES
 from assets import BUTTONS
 
@@ -51,37 +52,49 @@ class Placement(Scene):
             int(rx / 2 - BUTTONS['next'][0].size[0] / 2),
             int(ry - 1.5 * BUTTONS['next'][0].size[1])
         )
-        im_grid = graphics.build_grid(rx * 0.9, ry * 0.7, 46, 20)
-        slen = int(im_grid.size[0] / 46 - 2)
+        im_grid = self.root.grid.sprite
         start_x = int(rx / 2 - im_grid.size[0] / 2)
         start_y = int(ry / 2 - im_grid.size[1] / 2)
+        pop_y = int(start_y + im_grid.size[1] * 1.05)
+        self._data['slen'] = self.root.grid_slen
+        self._nodes['grid'] = self.root.grid
+        self._nodes.update(self.root.cells)
+        self._nodes['pop_txt'] = self.root.new_node(
+            TEXTS['pop'],
+            start_x,
+            pop_y
+        )
+        self._nodes['popa1'] = self.root.new_multi_node(
+            [TEXTS[i] for i in range(10)],
+            int(start_x + TEXTS['pop'].size[0] * 1.1),
+            pop_y
+        )
+        self._nodes['popa2'] = self.root.new_multi_node(
+            [TEXTS[i] for i in range(10)],
+            int(self._nodes['popa1'].x + TEXTS[9].size[0]),
+            pop_y
+        )
+        self._nodes['of'] = self.root.new_node(
+            TEXTS['of'],
+            int(self._nodes['popa2'].x + TEXTS[9].size[0] * 2),
+            pop_y
+        )
+        self._nodes['popt1'] = self.root.new_multi_node(
+            [TEXTS[i] for i in range(10)],
+            int(self._nodes['of'].x + TEXTS['of'].size[0] + TEXTS[9].size[0]),
+            pop_y
+        )
+        self._nodes['popt2'] = self.root.new_multi_node(
+            [TEXTS[i] for i in range(10)],
+            int(self._nodes['popt1'].x + TEXTS[9].size[0]),
+            pop_y
+        )
         self._data['g_bb'] = aabb.AABB(
             start_x, 
             start_y,
             start_x + im_grid.size[0],
             start_y + im_grid.size[1]
         )
-        self._data['slen'] = int(im_grid.size[0] / 46)
-        self._nodes['grid'] = self.root.new_node(
-            im_grid,
-            start_x,
-            start_y
-        )
-        
-        im_rects = [
-            graphics.build_rect(slen),
-            graphics.build_rect(slen, color=graphics.BLACK),
-            graphics.build_rect(slen, color=graphics.RED),
-            graphics.build_rect(slen, color=graphics.BLUE),
-            graphics.build_rect(slen, color=graphics.GREEN),
-        ]
-        for x in range(46):
-            for y in range(20):
-                self._nodes[(x, y)] = self.root.new_multi_node(
-                    im_rects,
-                    start_x + (x + 1) * 2 + x * slen,
-                    start_y + (y + 1) * 2 + y * slen
-                )
 
     def process(self):
         if self._init:
@@ -132,10 +145,10 @@ class Placement(Scene):
             self._data['p'] = 1
         elif self._data['p'] == 1:
             self._data['p'] = 0
-        self.clear()
         sa, sb = self.root.species_a, self.root.species_b
         self._data['species'] = sb if self._data['p'] else sa
         self._data['active'] = 0
+        self.clear()
         self.root.event_handler.reset()
         self.root.event_handler.register(
             sdl2.SDL_MOUSEBUTTONUP,
@@ -152,22 +165,59 @@ class Placement(Scene):
 
     def clear(self):
         self._nodes['title'].set_active(self._data['p'])
+        self.update_count()
         p1 = self._data['p'] == 0
-        for x in range(46):
-            for y in range(20):
-                if (p1 and x < 23) or (not p1 and x >= 23):
+        for x in range(48):
+            for y in range(21):
+                if (p1 and x < 24) or (not p1 and x >= 24):
                     a = 1
-                elif (p1 and x >= 23) or (not p1 and x < 23):
+                elif (p1 and x >= 24) or (not p1 and x < 24):
                     a = 0
                 self._nodes[(x, y)].set_active(a)
+
+    def update_count(self):
+        a1, a2 = f'{self._data["active"]:02}'
+        t1, t2 = f'{self._data["species"].population:02}'
+        self._nodes['popa1'].set_active(int(a1))
+        self._nodes['popa2'].set_active(int(a2))
+        self._nodes['popt1'].set_active(int(t1))
+        self._nodes['popt2'].set_active(int(t2))
 
     def mouse_click(self):
         if self._nodes['next'].mouse_inside \
             and self._data['active'] == self._data['species'].population:
+                if self._data['hover'] is not None:
+                    self._nodes[self._data['hover']].set_active(
+                        self._data['pstate']
+                    )
+                    self._data['hover'] = None
+                    self._data['pstate'] = None
                 if self._data['p'] == 0:
+                    p = []
+                    for x in range(24):
+                        for y in range(21):
+                            if self._nodes[(x, y)].active == 2:
+                                p.append((x, y))
+                                if len(p) == self._data['species'].population:
+                                    break
+                        if len(p) == self._data['species'].population:
+                            break
+                    self.root.placement[0] = p
                     self.root.request('SpeciesSelection')
+                    return
                 else:
+                    p = []
+                    for x in range(24, 48):
+                        for y in range(21):
+                            if self._nodes[(x, y)].active == 3:
+                                p.append((x, y))
+                                if len(p) == self._data['species'].population:
+                                    break
+                        if len(p) == self._data['species'].population:
+                            break
+                    self.root.placement[1] = p
                     self.root.request('Simulation')
+                    return
         if self._data['hover'] is not None:
             node = self._nodes[self._data['hover']]
             if self._data['species'].population > self._data['active'] \
@@ -179,5 +229,5 @@ class Placement(Scene):
                 self._data['active'] -= 1
                 node.set_active(1)
                 self._data['pstate'] = 1
-
+            self.update_count()
 

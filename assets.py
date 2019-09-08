@@ -92,6 +92,10 @@ TEXTS = {
         'Population:',
         graphics.BLUE
     ),
+    'of': graphics.build_text(
+        'of',
+        graphics.BLUE
+    ),
     'str_info': graphics.build_text(
         'Multiplier used during fighting, high strength makes hungry...',
         font=graphics.FONT_SMALL

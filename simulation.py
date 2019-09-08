@@ -22,8 +22,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-from scene import Scene
 
+import sdl2
+
+from scene import Scene
+from assets import BUTTONS
+from assets import TEXTS
+from assets import TITLES
 
 class Simulation(Scene):
     def __init__(self, root):
@@ -34,6 +39,7 @@ class Simulation(Scene):
         pass
 
     def enter(self):
+        print(self.root.placement)
         self._sprites = {}
         self.root.event_handler.reset()
         self.root.event_handler.register(

@@ -63,6 +63,10 @@ class Game(object):
         self._factory = None
         self._renderer = None
 
+        self._grid = None
+        self._cells = {}
+        self._grid_slen = 0
+
         self._clean_exit = False
         self._running = False
         self._active_sprites = []
@@ -71,6 +75,7 @@ class Game(object):
         self._event_handler = EventHandler(self.quit)
         self._species_a = fol.Species()
         self._species_b = fol.Species()
+        self._placement = [[], []]
 
     @property
     def mouse_pos(self):
@@ -101,12 +106,58 @@ class Game(object):
         return self._species_b
 
     @property
+    def placement(self):
+        return self._placement
+
+    @property
     def scene_data(self):
         if self._active_scene is None:
             raise ValueError('No active scene set.')
         if self._active_scene not in self._scene_data:
             self._scene_data[self._active_scene] = {}
         return self._scene_data[self._active_scene]
+
+    @property
+    def grid(self):
+        return self._grid
+
+    @property
+    def cells(self):
+        return self._cells
+
+    @property
+    def grid_slen(self):
+        return self._grid_slen
+
+    def setup_grid(self):
+        rx, ry = self.resolution
+        im_grid = graphics.build_grid(rx * 0.9, ry * 0.7, 48, 21)
+        slen = int(im_grid.size[0] / 48 - 2)
+        start_x = int(rx / 2 - im_grid.size[0] / 2)
+        start_y = int(ry / 2 - im_grid.size[1] / 2)
+        pop_y = int(start_y + im_grid.size[1] * 1.05)
+        self._grid = self.new_node(
+            im_grid,
+            start_x,
+            start_y
+        )
+        self._grid.hide()
+        im_rects = [
+            graphics.build_rect(slen),
+            graphics.build_rect(slen, color=graphics.BLACK),
+            graphics.build_rect(slen, color=graphics.RED),
+            graphics.build_rect(slen, color=graphics.BLUE),
+            graphics.build_rect(slen, color=graphics.GREEN),
+        ]
+        for x in range(48):
+            for y in range(21):
+                self._cells[(x, y)] = self.new_multi_node(
+                    im_rects,
+                    start_x + (x + 1) * 2 + x * slen,
+                    start_y + (y + 1) * 2 + y * slen
+                )
+                self._cells[(x, y)].hide()
+        self._grid_slen = slen
 
     def request(self, scene):
         if scene not in self._scenes:
@@ -229,7 +280,7 @@ class Game(object):
             renderer=self._renderer
         )
         # self._world.add_system(self._renderer)
-        
+        self.setup_grid()
         self._running = True
         self.request('MainMenu')
         
