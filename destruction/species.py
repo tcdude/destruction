@@ -62,9 +62,9 @@ class SpeciesSelection(Scene):
         tot_y += TEXTS['str_info'].size[1] * 2
         tot_x = max(TEXTS['str_info'].size[0], TEXTS['fer_info'].size[0])
         y_str = int(ry / 2 - tot_y / 2 + 2 * TITLES['p1_species'].size[1])
-        y_str_i = int(y_str + TEXTS['str'].size[1])
+        y_str_i = int(y_str + BUTTONS['inc'][0].size[1])
         y_fer = int(y_str_i + TEXTS['str_info'].size[1] + TEXTS['str'].size[1] / 3)
-        y_fer_i = int(y_fer + TEXTS['str'].size[1])
+        y_fer_i = int(y_fer + BUTTONS['inc'][0].size[1])
         y_nut = int(y_fer_i + TEXTS['str_info'].size[1] + TEXTS['str'].size[1] / 3)
         y_pop = int(y_nut + TEXTS['str'].size[1] * 4 / 3)
         x_left = int(rx / 2 - tot_x / 2)
