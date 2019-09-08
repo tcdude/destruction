@@ -45,6 +45,8 @@ setup(
     ext_modules=cythonize(extensions,
                           compiler_directives={'language_level': 3},
                           annotate=False),
+    package_data={'': ['destruction/resources/437tt.ttf']},
+    include_package_data=True,
 )
 """
 from distutils.core import setup
