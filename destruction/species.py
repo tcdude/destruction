@@ -25,11 +25,11 @@ SOFTWARE.
 
 import sdl2
 
-from scene import Scene
-import graphics
-from assets import BUTTONS
-from assets import TITLES
-from assets import TEXTS
+from .scene import Scene
+from . import graphics
+from .assets import BUTTONS
+from .assets import TITLES
+from .assets import TEXTS
 
 
 class SpeciesSelection(Scene):

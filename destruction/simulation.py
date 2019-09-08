@@ -27,10 +27,10 @@ import time
 
 import sdl2
 
-from scene import Scene
-from assets import BUTTONS
-from assets import TEXTS
-from assets import TITLES
+from .scene import Scene
+from .assets import BUTTONS
+from .assets import TEXTS
+from .assets import TITLES
 import fol
 
 MAX_FOOD = 500

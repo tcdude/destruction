@@ -28,7 +28,7 @@ SOFTWARE.
 from cython.operator cimport dereference as deref
 from libcpp.memory cimport unique_ptr
 
-cimport cppfol
+from . cimport cppfol
 
 
 cdef class Species:

@@ -24,11 +24,11 @@ SOFTWARE.
 
 import sdl2
 
-from scene import Scene
-import graphics
-import aabb
-from assets import BUTTONS
-from assets import TITLES
+from .scene import Scene
+from . import graphics
+from . import aabb
+from .assets import BUTTONS
+from .assets import TITLES
 
 
 class MainMenu(Scene):

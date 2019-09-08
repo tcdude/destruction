@@ -27,12 +27,12 @@ import random
 
 import sdl2
 
-import aabb
-from scene import Scene
-import graphics
-from assets import TEXTS
-from assets import TITLES
-from assets import BUTTONS
+from . import aabb
+from .scene import Scene
+from . import graphics
+from .assets import TEXTS
+from .assets import TITLES
+from .assets import BUTTONS
 
 
 class Placement(Scene):

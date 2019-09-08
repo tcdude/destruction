@@ -29,14 +29,14 @@ import sdl2.ext
 from sdl2 import endian, surface, pixels
 
 import fol
-import graphics
-import node
-from event_handler import EventHandler
-from render import HWRenderer
-from menu import MainMenu
-from species import SpeciesSelection
-from placement import Placement
-from simulation import Simulation
+from . import graphics
+from . import node
+from .event_handler import EventHandler
+from .render import HWRenderer
+from .menu import MainMenu
+from .species import SpeciesSelection
+from .placement import Placement
+from .simulation import Simulation
 
 
 class Game(object):
