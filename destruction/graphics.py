@@ -40,7 +40,7 @@ _ = sdl2.SDL_GetDisplayDPI(
     ctypes.byref(v)
 )
 
-BASE_DPI = 200
+BASE_DPI = 120
 if d.value > 0:
     SCALE = d.value / BASE_DPI
 elif h.value > 0:
