@@ -39,13 +39,13 @@ setup(
     packages=find_namespace_packages(include=['destruction']),
     package_data={'foolysh': [
         'LICENSE',
+        'destruction/resources/437tt.ttf'
     ]},
     install_requires=['Pillow', 'PySDL2>=0.9.6'],
     setup_requires=['Cython'],
     ext_modules=cythonize(extensions,
                           compiler_directives={'language_level': 3},
                           annotate=False),
-    package_data={'': ['destruction/resources/437tt.ttf']},
     include_package_data=True,
 )
 """
