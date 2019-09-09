@@ -12,4 +12,36 @@ use the former only recently and being more used to writing code in IDEs,
 result of this week of coding will be secondary to improving my skills
 over all.
 
-More information when I have an idea of what I'll be doing...
+# Fight of Life
+Inspired by Conways' Game of Life, I wanted to experiment and see what can 
+come out of it.
+
+Since I was mostly learning how to write code with ``vim`` as efficiently 
+as possible and most of time only had a rough idea of what to do, the 
+result isn't shiny or good...
+
+## Install / Run
+
+### Prerequisites
+You need Python 3.6+ and have an environment to compile Python packages 
+(-> you need the Python header files for your Python version and respective 
+OS). Having ``git`` installed also helps and ``pip`` if you haven't already
+installed it together with your Python distribution...
+Runtime Binaries of [SDL 2.0](https://www.libsdl.org/download-2.0.php) for 
+your OS/Distribution, placed somewhere in your ``PATH``.
+
+*Depending on your preferences, you also may want to setup a fresh ``virtualenv`` to not mess with your global
+Python installation*
+
+### Installation with git available
+
+run: ``pip install git+https://github.com/tcdude/destruction.git``
+
+### Installation w/o git
+Download the repo and remember where you saved it *(extract/unpack it, if you downloaded as a ZIP...)*
+run: ``pip install <path/where/you/saved/it>``
+
+### Run
+run: ``python -m destruction.main``
+
+
