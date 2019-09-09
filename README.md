@@ -23,10 +23,12 @@ result isn't shiny or good...
 ## Install / Run
 
 ### Prerequisites
-You need Python 3.6+ and have an environment to compile Python packages 
-(-> you need the Python header files for your Python version and respective 
-OS). Having ``git`` installed also helps and ``pip`` if you haven't already
-installed it together with your Python distribution...
+You need [Python](https://www.python.org) 3.6+ and have an environment to 
+compile Python packages (-> you need a suitable compiler toolchain and the
+Python header files for your Python version and respective OS). Having ``git``
+installed also helps and ``pip`` if you haven't already installed it together 
+with your Python distribution...
+
 Runtime Binaries of [SDL 2.0](https://www.libsdl.org/download-2.0.php) for 
 your OS/Distribution, placed somewhere in your ``PATH``.
 
