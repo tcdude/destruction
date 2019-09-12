@@ -57,7 +57,6 @@ class Game(object):
         self._active_scene = None
         self._scene_data = {}
 
-        # self._world = sdl2.ext.World()
         self._nodes = []
         self._window = None
         self._factory = None
@@ -333,7 +332,9 @@ class Game(object):
         for node in self._nodes:
             if node.visible:
                 sprites.append(node.sprite)
-        self.render(sprites)
+        if sprites:
+            sprites.sort(key=lambda x: x.depth)
+            self.render(sprites)
 
     def _update_mouse(self):
         x, y = ctypes.c_int(0), ctypes.c_int(0)

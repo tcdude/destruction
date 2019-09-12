@@ -172,12 +172,12 @@ class Simulation(Scene):
                     a = 1
                 if a > 1:
                     self._nodes[k].set_active(a)
-                    self._nodes[k].show()
-                    self._nodes[(0, ) + k].hide()
+                    self._nodes[k].depth = 1
+                    self._nodes[(0, ) + k].depth = 0
                 else:
                     self._nodes[(0, ) + k].set_active(9)
-                    self._nodes[k].hide()
-                    self._nodes[(0, ) + k].show()
+                    self._nodes[k].depth = 0
+                    self._nodes[(0, ) + k].depth = 1
 
     def simulate(self):
         if not self._running:
@@ -190,13 +190,13 @@ class Simulation(Scene):
                 c = cells[x + y * 48]
                 if c:
                     self._nodes[(x, y)].set_active(c + 1)
-                    self._nodes[(x, y)].show()
-                    self._nodes[(0, x, y)].hide()
+                    self._nodes[(x, y)].depth = 1
+                    self._nodes[(0, x, y)].depth = 0
                 else:    
                     food_idx = min(9, int(food[x + y * 48] / MAX_FOOD * 10))
                     self._nodes[(0, x, y)].set_active(food_idx)
-                    self._nodes[(0, x, y)].show()
-                    self._nodes[(x, y)].hide()
+                    self._nodes[(0, x, y)].depth = 1
+                    self._nodes[(x, y)].depth = 0
         if self._world.count_a == 0 or self._world.count_b == 0:
             self._running = False
             self._finished = True
